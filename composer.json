@@ -1,0 +1,17 @@
+{
+    "require": {
+        "brianium/paratest": "dev-master"
+    },
+    "require-dev": {
+        "redcrackle/redtest-core": "*"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "bin-dir": "bin/"
+    },
+    "autoload": {
+        "psr-4": {
+            "RedTest\\": "RedTest/"
+        }
+    }
+}
