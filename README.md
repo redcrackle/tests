@@ -16,5 +16,5 @@ php composer.phar install
 Go to Drupal root folder and execute the following:
 
 <pre><code>
-tests/bin/paratest --phpunit=tests/bin/phpunit --processes=12 --no-test-tokens --log-junit="tests/output.xml" --configuration=tests/phpunit.xml
+tests/bin/paratest --phpunit=tests/bin/phpunit --processes=4 --no-test-tokens --log-junit="tests/output.xml" --configuration=tests/phpunit.xml
 </code></pre>
