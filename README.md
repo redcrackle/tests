@@ -14,10 +14,10 @@ php composer.phar install
 We want to commit "tests" folder inside the project git and not as a separate git sub-module so remove .git folder from inside "tests" folder.
 
 <pre><code>
-rm -rf .git
-</pre></code>
+rm -rf .git</code>
+</pre>
 
-## RUN THE TESTS
+## RUNNING TESTS
 
 Go to Drupal root folder and execute the following:
 
