@@ -10,6 +10,11 @@ namespace RedTest\entities\TaxonomyTerm;
 
 use RedTest\core\entities\TaxonomyTerm;
 
+/**
+ * Class Tags
+ *
+ * @package RedTest\entities\TaxonomyTerm
+ */
 class Tags extends TaxonomyTerm {
 
   /**
@@ -18,7 +23,7 @@ class Tags extends TaxonomyTerm {
    * @param int $tid
    *   Node id if an existing node needs to be loaded.
    */
-  public function __construct($tid = NULL) {
+  /*public function __construct($tid = NULL) {
     parent::__construct($tid);
-  }
+  }*/
 }

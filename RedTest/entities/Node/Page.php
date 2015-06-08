@@ -10,6 +10,11 @@ namespace RedTest\entities\Node;
 
 use RedTest\core\entities\Node;
 
+/**
+ * Class Page
+ *
+ * @package RedTest\entities\Node
+ */
 class Page extends Node {
 
   /**
@@ -18,7 +23,7 @@ class Page extends Node {
    * Node directly because NodeForm's constructor is a protected function.
    *
    * @param int $nid
-   *   Node id if an existing node needs to be loaded.
+   *   Node id if an existing node needs to be loaded and NULL otherwise.
    */
   public function __construct($nid = NULL) {
     parent::__construct($nid);

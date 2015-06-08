@@ -10,9 +10,11 @@ namespace RedTest\forms\entities\Node;
 
 use RedTest\core\forms\entities\Node\NodeForm;
 
+/**
+ * Class ArticleForm
+ *
+ * @package RedTest\forms\entities\Node
+ */
 class ArticleForm extends NodeForm {
 
-  public function __construct($nid = NULL) {
-    parent::__construct($nid);
-  }
 }

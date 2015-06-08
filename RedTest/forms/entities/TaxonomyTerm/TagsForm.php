@@ -10,15 +10,11 @@ namespace RedTest\forms\entities\TaxonomyTerm;
 
 use RedTest\core\forms\entities\TaxonomyTerm\TaxonomyFormTerm as TaxonomyFormTerm;
 
+/**
+ * Class TagsForm
+ *
+ * @package RedTest\forms\entities\TaxonomyTerm
+ */
 class TagsForm extends TaxonomyFormTerm {
 
-  /**
-   * Default constructor.
-   *
-   * @param int $tid
-   *   TaxonomyTerm id if an existing term needs to be loaded.
-   */
-  public function __construct($tid = NULL) {
-    parent::__construct($tid);
-  }
 }
