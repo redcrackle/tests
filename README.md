@@ -24,3 +24,5 @@ Go to Drupal root folder and execute the following:
 <pre><code>
 tests/bin/paratest --phpunit=tests/bin/phpunit --processes=4 --no-test-tokens --log-junit="tests/output.xml" --configuration=tests/phpunit.xml
 </code></pre>
+
+In above command, you can update the --processes argument to 1.5 times the number of cores present in your system.
