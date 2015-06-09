@@ -17,13 +17,4 @@ use RedTest\core\entities\Node as Node;
  */
 class Article extends Node {
 
-  /**
-   * Default constructor.
-   *
-   * @param int $nid
-   *   Node id if an existing node needs to be loaded and NULL otherwise.
-   */
-  /*public function __construct($nid = NULL) {
-    parent::__construct($nid);
-  }*/
 }

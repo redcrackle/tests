@@ -15,6 +15,6 @@ use RedTest\core\entities\TaxonomyTerm;
  *
  * @package RedTest\entities\TaxonomyTerm
  */
-class Tags extends TaxonomyTerm {
+class Categories extends TaxonomyTerm {
 
 }
