@@ -5,3 +5,5 @@ bin
 bin/*
 
 output.xml
+
+composer.lock
