@@ -24,14 +24,12 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * Create an authenticated user and log in as that user.
    */
   public static function setUpBeforeClass() {
-    list($success, $userObject, $msg) = User::createRandom();
-    self::assertTrue($success, $msg);
+    $userObject = User::createRandom()->verify(get_class());
 
-    list($success, $userObject, $msg) = User::login(
+    $userObject = User::login(
       $userObject->getNameValues(),
       $userObject->getPasswordValues()
-    );
-    self::assertTrue($success, $msg);
+    )->verify(get_class());
   }
 
   /**

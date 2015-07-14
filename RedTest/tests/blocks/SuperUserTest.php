@@ -24,8 +24,7 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * Log in as uid 1.
    */
   public static function setUpBeforeClass() {
-    list($success, $userObject, $msg) = User::loginProgrammatically(1);
-    self::assertTrue($success, $msg);
+    $userObject = User::loginProgrammatically(1)->verify(get_class());
   }
 
   /**

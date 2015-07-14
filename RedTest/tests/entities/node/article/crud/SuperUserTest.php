@@ -9,6 +9,7 @@
 namespace RedTest\tests\entities\node\article\crud;
 
 use RedTest\core\entities\User;
+use RedTest\core\Path;
 use RedTest\core\RedTest_Framework_TestCase;
 use RedTest\entities\Node\Article;
 use RedTest\forms\entities\Node\ArticleForm;
@@ -41,8 +42,7 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * Log in as uid 1.
    */
   public static function setupBeforeClass() {
-    list($success, $userObject, $msg) = User::loginProgrammatically(1);
-    self::assertTrue($success, $msg);
+    $userObject = User::loginProgrammatically(1)->verify(get_class());
 
     self::$options = array(
       'required_fields_only' => FALSE,
@@ -53,8 +53,9 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * Make sure that superuser has access to create an article.
    */
   public function testCreateAccess() {
+    $path = new Path('node/add/article');
     $this->assertTrue(
-      Menu::hasAccess('node/add/article'),
+      $path->hasAccess(),
       'Superuser does not have access to create an article.'
     );
 
@@ -71,17 +72,13 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    */
   public function testCreate() {
     $articleForm = new ArticleForm();
+    $articleForm->verify($this);
 
-    list($success, $fields, $msg) = $articleForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    $fields = $articleForm->fillRandomValues(self::$options)->verify($this);
 
-    list($success, $articleObject, $msg) = $articleForm->submit();
-    $this->assertTrue($success, $msg);
+    $articleObject = $articleForm->submit()->verify($this);
 
-    list($success, $msg) = $articleObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    $articleObject->checkValues($fields)->verify($this);
 
     self::$articleId = $articleObject->getId();
   }
@@ -92,12 +89,14 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testCreate
    */
   public function testUpdateAccess() {
+    $path = new Path('node/' . self::$articleId . '/edit');
     $this->assertTrue(
-      Menu::hasAccess('node/' . self::$articleId . '/edit'),
+      $path->hasAccess(),
       'Superuser does not have access to edit an article.'
     );
 
     $articleObject = new Article(self::$articleId);
+    $articleObject->verify($this);
     $this->assertTrue(
       $articleObject->hasUpdateAccess(),
       "Superuser does not have access to edit an article."
@@ -111,17 +110,15 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    */
   public function testUpdate() {
     $articleForm = new ArticleForm(self::$articleId);
+    $articleForm->verify($this);
 
-    list($success, self::$fields, $msg) = $articleForm->fillRandomValues(
-      self::$options
+    self::$fields = $articleForm->fillRandomValues(self::$options)->verify(
+      $this
     );
-    $this->assertTrue($success, $msg);
 
-    list($success, $articleObject, $msg) = $articleForm->submit();
-    $this->assertTrue($success, $msg);
+    $articleObject = $articleForm->submit()->verify($this);
 
-    list($success, $msg) = $articleObject->checkValues(self::$fields);
-    $this->assertTrue($success, $msg);
+    $articleObject->checkValues(self::$fields)->verify($this);
 
     return $articleObject->getId();
   }
@@ -132,12 +129,14 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testUpdate
    */
   public function testViewAccess() {
+    $path = new Path('node/' . self::$articleId);
     $this->assertTrue(
-      Menu::hasAccess('node/' . self::$articleId),
+      $path->hasAccess(),
       'Superuser does not have access to view an article.'
     );
 
     $articleObject = new Article(self::$articleId);
+    $articleObject->verify($this);
     $this->assertTrue(
       $articleObject->hasViewAccess(),
       "Superuser does not have access to view an article."
@@ -151,16 +150,41 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    */
   public function testView() {
     $article = new Article(self::$articleId);
+    $article->verify($this);
 
     $teaser_view = $article->view('teaser');
-    $this->assertArrayHasKey('body', $teaser_view, 'Article teaser does not show body field.');
-    $this->assertArrayHasKey('field_image', $teaser_view, 'Article teaser does not show image field.');
-    $this->assertArrayHasKey('field_tags', $teaser_view, 'Article teaser does not show tags field.');
+    $this->assertArrayHasKey(
+      'body',
+      $teaser_view,
+      'Article teaser does not show body field.'
+    );
+    $this->assertArrayHasKey(
+      'field_image',
+      $teaser_view,
+      'Article teaser does not show image field.'
+    );
+    $this->assertArrayHasKey(
+      'field_tags',
+      $teaser_view,
+      'Article teaser does not show tags field.'
+    );
 
     $full_view = $article->view('full');
-    $this->assertArrayHasKey('body', $full_view, 'Article does not show body field.');
-    $this->assertArrayHasKey('field_image', $full_view, 'Article does not show image field.');
-    $this->assertArrayHasKey('field_tags', $full_view, 'Article teaser does not show tags field.');
+    $this->assertArrayHasKey(
+      'body',
+      $full_view,
+      'Article does not show body field.'
+    );
+    $this->assertArrayHasKey(
+      'field_image',
+      $full_view,
+      'Article does not show image field.'
+    );
+    $this->assertArrayHasKey(
+      'field_tags',
+      $full_view,
+      'Article teaser does not show tags field.'
+    );
   }
 
   /**
@@ -169,12 +193,14 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testView
    */
   public function testDeleteAccess() {
+    $path = new Path('node/' . self::$articleId . '/delete');
     $this->assertTrue(
-      Menu::hasAccess('node/' . self::$articleId . '/delete'),
+      $path->hasAccess(),
       'Superuser does not have access to edit an article.'
     );
 
     $articleObject = new Article(self::$articleId);
+    $articleObject->verify($this);
     $this->assertTrue(
       $articleObject->hasUpdateAccess(),
       "Superuser does not have access to create an article."
@@ -188,8 +214,8 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    */
   public function testDelete() {
     $article = new Article(self::$articleId);
+    $article->verify($this);
 
-    list($success, $msg) = $article->delete();
-    $this->assertTrue($success, $msg);
+    $article->delete()->verify($this);
   }
 }

@@ -10,6 +10,7 @@ namespace RedTest\tests\entities\node\article\comment;
 
 
 use RedTest\core\forms\entities\Comment\CommentConfirmDelete;
+use RedTest\core\Path;
 use RedTest\core\RedTest_Framework_TestCase;
 use RedTest\entities\Comment\ArticleComment;
 use RedTest\entities\Node\Article;
@@ -48,11 +49,9 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * Log in as uid 1 and create an article.
    */
   public static function setupBeforeClass() {
-    list($success, $userObject, $msg) = User::loginProgrammatically(1);
-    self::assertTrue($success, $msg);
+    $userObject = User::loginProgrammatically(1)->verify(get_class());
 
-    list($success, self::$articleObject, $msg) = Article::createRandom();
-    self::assertTrue($success, $msg);
+    self::$articleObject = Article::createRandom()->verify(get_class());
   }
 
   /**
@@ -86,22 +85,15 @@ class SuperUserTest extends RedTest_Framework_TestCase {
       NULL,
       self::$articleObject->getId()
     );
-    $this->assertTrue(
-      $articleCommentForm->getInitialized(),
-      $articleCommentForm->getErrors()
+    $articleCommentForm->verify($this);
+
+    $fields = $articleCommentForm->fillRandomValues(self::$options)->verify(
+      $this
     );
 
-    list($success, $fields, $msg) = $articleCommentForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject = $articleCommentForm->submit()->verify($this);
 
-    list($success, self::$articleCommentObject, $msg) = $articleCommentForm->submit(
-    );
-    $this->assertTrue($success, $msg);
-
-    list($success, $msg) = self::$articleCommentObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject->checkValues($fields)->verify($this);
   }
 
   /**
@@ -110,10 +102,11 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentPost
    */
   public function testCommentViewAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/view'
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/view'
-      ),
+      $path->hasAccess(),
       "Superuser does not have permission to view his own comment."
     );
     $this->assertTrue(
@@ -128,10 +121,11 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentViewAccess
    */
   public function testCommentEditAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/edit'
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/edit'
-      ),
+      $path->hasAccess(),
       "Superuser does not have permission to edit his own comment."
     );
 
@@ -151,22 +145,13 @@ class SuperUserTest extends RedTest_Framework_TestCase {
       self::$articleCommentObject->getId(),
       self::$articleObject->getId()
     );
-    $this->assertTrue(
-      $articleCommentForm->getInitialized(),
-      $articleCommentForm->getErrors()
-    );
+    $articleCommentForm->verify($this);
 
-    list($success, $fields, $msg) = $articleCommentForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    $fields = $articleCommentForm->fillRandomValues(self::$options)->verify($this);
 
-    list($success, self::$articleCommentObject, $msg) = $articleCommentForm->submit(
-    );
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject = $articleCommentForm->submit()->verify($this);
 
-    list($success, $msg) = self::$articleCommentObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject->checkValues($fields)->verify($this);
   }
 
   /**
@@ -175,11 +160,12 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentEdit
    */
   public function testCommentReplyAccess() {
+    $path = new Path(
+      'comment/reply/' . self::$articleObject->getId(
+      ) . '/' . self::$articleCommentObject->getId()
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/reply/' . self::$articleObject->getId(
-        ) . '/' . self::$articleCommentObject->getId()
-      ),
+      $path->hasAccess(),
       "Superuser does not have permission to reply to his own comment."
     );
   }
@@ -195,22 +181,13 @@ class SuperUserTest extends RedTest_Framework_TestCase {
       self::$articleObject->getId(),
       self::$articleCommentObject->getId()
     );
-    $this->assertTrue(
-      $articleReplyForm->getInitialized(),
-      $articleReplyForm->getErrors()
-    );
+    $articleReplyForm->verify($this);
 
-    list($success, $fields, $msg) = $articleReplyForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    $fields = $articleReplyForm->fillRandomValues(self::$options)->verify($this);
 
-    list($success, self::$articleReplyObject, $msg) = $articleReplyForm->submit(
-    );
-    $this->assertTrue($success, $msg);
+    self::$articleReplyObject = $articleReplyForm->submit()->verify($this);
 
-    list($success, $msg) = self::$articleReplyObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    self::$articleReplyObject->checkValues($fields)->verify($this);
   }
 
   /**
@@ -219,10 +196,11 @@ class SuperUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentReply
    */
   public function testCommentDeleteAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/delete'
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/delete'
-      ),
+      $path->hasAccess(),
       "Superuser is not able to delete his own comment."
     );
   }
@@ -234,7 +212,7 @@ class SuperUserTest extends RedTest_Framework_TestCase {
     $commentDeleteForm = new CommentConfirmDelete(
       self::$articleCommentObject->getId()
     );
-    list($success, $msg) = $commentDeleteForm->submit();
+    $commentDeleteForm->submit()->verify($this);
 
     $articleCommentObject = new ArticleComment(
       self::$articleCommentObject->getId()

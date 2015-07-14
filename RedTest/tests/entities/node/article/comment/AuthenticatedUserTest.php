@@ -10,6 +10,7 @@ namespace RedTest\tests\entities\node\article\comment;
 
 
 use RedTest\core\Menu;
+use RedTest\core\Path;
 use RedTest\core\RedTest_Framework_TestCase;
 use RedTest\entities\Comment\ArticleComment;
 use RedTest\entities\Node\Article;
@@ -42,22 +43,18 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * Create an authenticated user and log in as that user. Create an article.
    */
   public static function setupBeforeClass() {
-    list($success, $userObject, $msg) = User::loginProgrammatically(1);
-    self::assertTrue($success, $msg);
+    $userObject = User::loginProgrammatically(1)->verify(get_class());
 
-    list($success, self::$articleObject, $msg) = Article::createRandom();
-    self::assertTrue($success, $msg);
+    self::$articleObject = Article::createRandom()->verify(get_class());
 
     $userObject->logout();
 
-    list($success, $userObject, $msg) = User::createRandom();
-    self::assertTrue($success, $msg);
+    $userObject = User::createRandom()->verify(get_class());
 
-    list($success, $userObject, $msg) = User::login(
+    $userObject = User::login(
       $userObject->getNameValues(),
       $userObject->getPasswordValues()
-    );
-    self::assertTrue($success, $msg);
+    )->verify(get_class());
   }
 
   /**
@@ -80,22 +77,15 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
       NULL,
       self::$articleObject->getId()
     );
-    $this->assertTrue(
-      $articleCommentForm->getInitialized(),
-      $articleCommentForm->getErrors()
+    $articleCommentForm->verify($this);
+
+    $fields = $articleCommentForm->fillRandomValues(self::$options)->verify(
+      $this
     );
 
-    list($success, $fields, $msg) = $articleCommentForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject = $articleCommentForm->submit()->verify($this);
 
-    list($success, self::$articleCommentObject, $msg) = $articleCommentForm->submit(
-    );
-    $this->assertTrue($success, $msg);
-
-    list($success, $msg) = self::$articleCommentObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    self::$articleCommentObject->checkValues($fields)->verify($this);
   }
 
   /**
@@ -104,10 +94,11 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentPost
    */
   public function testCommentViewAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/view'
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/view'
-      ),
+      $path->hasAccess(),
       "Authenticated user does not have permission to view his own comment."
     );
     $this->assertTrue(
@@ -123,10 +114,11 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentViewAccess
    */
   public function testCommentEditAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/edit'
+    );
     $this->assertFalse(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/edit'
-      ),
+      $path->hasAccess(),
       "Authenticated user has permission to edit his own comment."
     );
 
@@ -143,11 +135,12 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentEditAccess
    */
   public function testCommentReplyAccess() {
+    $path = new Path(
+      'comment/reply/' . self::$articleObject->getId(
+      ) . '/' . self::$articleCommentObject->getId()
+    );
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/reply/' . self::$articleObject->getId(
-        ) . '/' . self::$articleCommentObject->getId()
-      ),
+      $path->hasAccess(),
       "Authenticated user does not have permission to reply to his own comment."
     );
   }
@@ -163,21 +156,15 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
       self::$articleObject->getId(),
       self::$articleCommentObject->getId()
     );
-    $this->assertTrue(
-      $articleReplyForm->getInitialized(),
-      $articleReplyForm->getErrors()
+    $articleReplyForm->verify($this);
+
+    $fields = $articleReplyForm->fillRandomValues(self::$options)->verify(
+      $this
     );
 
-    list($success, $fields, $msg) = $articleReplyForm->fillRandomValues(
-      self::$options
-    );
-    $this->assertTrue($success, $msg);
+    $articleReplyObject = $articleReplyForm->submit()->verify($this);
 
-    list($success, $articleReplyObject, $msg) = $articleReplyForm->submit();
-    $this->assertTrue($success, $msg);
-
-    list($success, $msg) = $articleReplyObject->checkValues($fields);
-    $this->assertTrue($success, $msg);
+    $articleReplyObject->checkValues($fields)->verify($this);
   }
 
   /**
@@ -186,10 +173,11 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
    * @depends testCommentReply
    */
   public function testCommentDeleteAccess() {
+    $path = new Path(
+      'comment/' . self::$articleCommentObject->getId() . '/delete'
+    );
     $this->assertFalse(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/delete'
-      ),
+      $path->hasAccess(),
       "Authenticated user is able to delete his own comment."
     );
   }

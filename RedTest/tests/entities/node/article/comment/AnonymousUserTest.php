@@ -10,6 +10,7 @@ namespace RedTest\tests\entities\node\article\comment;
 
 
 use RedTest\core\entities\Comment;
+use RedTest\core\Path;
 use RedTest\core\RedTest_Framework_TestCase;
 use RedTest\core\entities\User;
 use RedTest\entities\Comment\ArticleComment;
@@ -40,11 +41,9 @@ class AnonymousUserTest extends RedTest_Framework_TestCase {
    * Make sure that user is anonymous.
    */
   public static function setupBeforeClass() {
-    list($success, $userObject, $msg) = User::loginProgrammatically(1);
-    self::assertTrue($success, $msg);
+    $userObject = User::loginProgrammatically(1)->verify(get_class());
 
-    list($success, self::$articleObject, $msg) = Article::createRandom();
-    self::assertTrue($success, $msg);
+    self::$articleObject = Article::createRandom()->verify(get_class());
 
     /**
      * @todo ArticleComment::createDefault doesn't work yet. Need to fix it.
@@ -55,16 +54,13 @@ class AnonymousUserTest extends RedTest_Framework_TestCase {
     );*/
 
     $articleCommentForm = new ArticleCommentForm(NULL, self::$articleObject->getId());
-    self::assertTrue($articleCommentForm->getInitialized(), $articleCommentForm->getErrors());
+    $articleCommentForm->verify(get_class());
 
-    list($success, $fields, $msg) = $articleCommentForm->fillRandomValues();
-    self::assertTrue($success, $msg);
+    $fields = $articleCommentForm->fillRandomValues()->verify(get_class());
 
-    list($success, self::$articleCommentObject, $msg) = $articleCommentForm->submit();
-    self::assertTrue($success, $msg);
+    self::$articleCommentObject = $articleCommentForm->submit()->verify(get_class());
 
-    list($success, $msg) = self::$articleCommentObject->checkValues($fields);
-    self::assertTrue($success, $msg);
+    self::$articleCommentObject->checkValues($fields)->verify(get_class());
 
     User::logout();
   }
@@ -83,10 +79,9 @@ class AnonymousUserTest extends RedTest_Framework_TestCase {
    * Make sure that anonymous user has permission to view a comment.
    */
   public function testCommentViewAccess() {
+    $path = new Path('comment/' . self::$articleCommentObject->getId() . '/view');
     $this->assertTrue(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/view'
-      ),
+      $path->hasAccess(),
       "Anonymous user does not have permission to view a comment."
     );
     $this->assertTrue(
@@ -99,10 +94,9 @@ class AnonymousUserTest extends RedTest_Framework_TestCase {
    * Make sure that anonymous user does not have permission to edit a comment.
    */
   public function testCommentEditAccess() {
+    $path = new Path('comment/' . self::$articleCommentObject->getId() . '/edit');
     $this->assertFalse(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/edit'
-      ),
+      $path->hasAccess(),
       "Anonymous user has permission to edit a comment."
     );
 
@@ -130,10 +124,9 @@ class AnonymousUserTest extends RedTest_Framework_TestCase {
    * Make sure that anonymous user is not able to delete a comment.
    */
   public function testCommentDeleteAccess() {
+    $path = new Path('comment/' . self::$articleCommentObject->getId() . '/delete');
     $this->assertFalse(
-      Menu::hasAccess(
-        'comment/' . self::$articleCommentObject->getId() . '/delete'
-      ),
+      $path->hasAccess(),
       "Authenticated user is able to delete a comment."
     );
   }

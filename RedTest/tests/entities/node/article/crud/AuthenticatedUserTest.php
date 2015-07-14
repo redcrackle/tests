@@ -9,6 +9,7 @@
 namespace RedTest\tests\entities\node\article\crud;
 
 use RedTest\core\entities\User;
+use RedTest\core\Path;
 use RedTest\core\RedTest_Framework_TestCase;
 use RedTest\entities\Node\Article;
 use RedTest\core\Menu;
@@ -41,22 +42,21 @@ class AuthenticatedUserTest extends RedTest_Framework_TestCase {
 
     User::logout();
 
-    list($success, $userObject, $msg) = User::createRandom();
-    self::assertTrue($success, $msg);
+    $userObject = User::createRandom()->verify(get_class());
 
-    list($success, self::$userObject, $msg) = User::login(
+    self::$userObject = User::login(
       $userObject->getNameValues(),
       $userObject->getPasswordValues()
-    );
-    self::assertTrue($success, $msg);
+    )->verify(get_class());
   }
 
   /**
    * Make sure that the authenticated user has access to create an article.
    */
   public function testCreateAccess() {
+    $path = new Path('node/add/article');
     $this->assertFalse(
-      Menu::hasAccess('node/add/article'),
+      $path->hasAccess(),
       'Authenticated user has access to create an article.'
     );
 
