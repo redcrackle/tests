@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "redcrackle/redtest-core": "*"
+        "redcrackle/redtest-core": "8.*"
     },
     "minimum-stability": "dev",
     "config": {
